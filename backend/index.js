@@ -1,4 +1,3 @@
-
 const express = require('express'),
     app = express(),
     passport = require('passport'),
@@ -10,6 +9,12 @@ const bcrypt = require('bcrypt')
 
 const db = require('./database.js')
 let users = db.users
+let students = {
+    list: [ 
+        {id: 6135512019 , name: "Thanan" , surname: "Chairat" , major: "CoE", GPA: 4.33}, 
+        {id: 1234567891 , name: "Aaaaaa" , surname: "Bbbbbbb" , major: "SE", GPA: 2.87} 
+    ]
+}
 
 require('./passport.js')
 
@@ -17,6 +22,64 @@ const router = require('express').Router(),
     jwt = require('jsonwebtoken')
 
 app.use('/api', router)
+//////////////////////////////////////////////////////////////////////////////////////////////////
+router.route('/students')
+    .get((req,res) => res.json(students))
+    .post((req,res) => {
+        let id = (students.list.length)?students.list[students.list.length-1].id+1:1
+        id = req.body.id
+        let newStudent = {}
+        newStudent.id = (students.list.length)?students.list[students.list.length - 1].id + 1:1
+        newStudent.name = req.body.name
+        newStudent.surname = req.body.surname
+        newStudent.major = req.body.major
+        newStudent.GPA = req.body.GPA
+        students = { "list": [...students.list, newStudent] }
+        res.json(students)
+    })
+router.route('/students/:student_id')
+    .get((req,res) => {
+        let id = students.list.findIndex((item) => (item.id === +req.params.student_id))
+        if(id === -1)
+        {
+            res.send("No ID (SHOW)")
+        }
+        else
+        { 
+            res.json(students.list[id])
+        }
+           
+        
+    })
+    .put((req,res) => {
+        let id = students.list.findIndex((item) => (item.id === +req.params.student_id))
+        if(id === -1)
+        {
+            res.send("No ID (UPDDATE)")
+        }
+        else
+        {
+            students.list[id].name = req.body.name
+            students.list[id].surname = req.body.surname
+            students.list[id].major = req.body.major
+            students.list[id].GPA = req.body.GPA
+            res.json(students)
+        }
+    })
+    .delete( (req,res) => {
+        let id = students.list.findIndex((item) => (item.id === +req.params.student_id))
+        if(id === -1)
+        {
+            res.send("No ID (DELETE)")
+        }
+        else
+        {
+            students.list = students.list.filter( item => item.id !== +req.params.student_id)
+            res.json(students)
+        }
+        
+    })
+////////////////////////////////////////////////////////////////////////////////////////////////////
 router.use(cors({ origin: 'http://localhost:3000', credentials: true }))
 // router.use(cors())
 router.use(express.json())
@@ -27,7 +90,7 @@ router.post('/login', (req, res, next) => {
         if (err) return next(err)
         if (user) {
             const token = jwt.sign(user, db.SECRET, {
-                expiresIn: '1d'
+                expiresIn: (req.body.Rememberme === "on") ?'7d' : '1d'
             })
             // req.cookie.token = token
             res.setHeader(

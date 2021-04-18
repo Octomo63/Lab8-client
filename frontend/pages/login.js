@@ -11,6 +11,7 @@ export default function Login({ token }) {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [status, setStatus] = useState('')
+    const [RememberMe, setRememberMe] = useState('')
 
     const login = async (req, res) => {
         try {
@@ -55,7 +56,7 @@ export default function Login({ token }) {
     const copyText = () => {
         navigator.clipboard.writeText(token)
     }
-
+    
     return (
         <Layout>
             <Head>
@@ -75,6 +76,12 @@ export default function Login({ token }) {
                 {loginForm()}
                 <div>
                     <button onClick={login}>Login</button>
+                </div>
+                <div>
+                <input type="checkbox"
+                    name="RememberMe"
+                    onChange = {(e) => setRememberMe(e.target.value)} /> Remember Me
+
                 </div>
             </div>
         </Layout>
