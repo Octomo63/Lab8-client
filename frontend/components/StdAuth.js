@@ -8,6 +8,8 @@ const StdAuth = WrappedComponent => {
         useEffect(() => {
             if (!token)
                 router.push('/DisStudent')
+            else
+                router.push('/ChangeStudent')
         }, [token])
         return (<WrappedComponent {...props} />)
     }

@@ -22,6 +22,11 @@ const router = require('express').Router(),
     jwt = require('jsonwebtoken')
 
 app.use('/api', router)
+router.use(cors({ origin: 'http://localhost:3000', credentials: true }))
+// router.use(cors())
+router.use(express.json())
+router.use(express.urlencoded({ extended: false }))
+
 //////////////////////////////////////////////////////////////////////////////////////////////////
 router.route('/students')
     .get((req,res) => res.json(students))
@@ -80,17 +85,14 @@ router.route('/students/:student_id')
         
     })
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-router.use(cors({ origin: 'http://localhost:3000', credentials: true }))
-// router.use(cors())
-router.use(express.json())
-router.use(express.urlencoded({ extended: false }))
+
 router.post('/login', (req, res, next) => {
     passport.authenticate('local', { session: false }, (err, user, info) => {
         console.log('Login: ', req.body, user, err, info)
         if (err) return next(err)
         if (user) {
             const token = jwt.sign(user, db.SECRET, {
-                expiresIn: (req.body.Rememberme === "on") ?'7d' : '1d'
+                expiresIn: (req.body.RememberMe === "on") ?'7d' : '1d'
             })
             // req.cookie.token = token
             res.setHeader(

@@ -16,7 +16,7 @@ export default function Login({ token }) {
     const login = async (req, res) => {
         try {
             let result = await axios.post(`${config.URL}/login`,
-                { username, password },
+                { username, password, RememberMe },
                 { withCredentials: true })
             console.log('result: ', result)
             console.log('result.data:  ', result.data)
@@ -70,10 +70,10 @@ export default function Login({ token }) {
                 </div>
                 <br/>
                 <div>
-                    Status:  {status}
+                    Status:  {status} {RememberMe}
                 </div>
                 <br />
-                {loginForm()}
+                    {loginForm()}
                 <div>
                     <button onClick={login}>Login</button>
                 </div>

@@ -2,15 +2,13 @@ import Head from 'next/head'
 import Layout from '../components/layout'
 import Navbar from '../components/navbar'
 import { useEffect, useState } from 'react'
-import styles from '../styles/std.module.css'
 import axios from 'axios'
-import stdAuth from '../components/StdAuth'
+import StdAuth from '../components/StdAuth'
 import config from '../config/config'
 
 const URL = `${config.URL}/students`
-const ChangeStudents = ({ token }) => {
+const ChangeStudent = ({ token }) => {
 
-  const [student, setStudent] = useState([])
   const [name,setName] = useState('')
   const [surname,setSurname] = useState('')
   const [major,setMajor] = useState('')
@@ -21,35 +19,33 @@ const ChangeStudents = ({ token }) => {
         { id: 1, name: 'Thanan', surname : 'Chairat' , major : 'CoE', GPA : 3.11 }
     ]
   })
-  const {data,error} = useSWR(URL,fetcher)
-  if(!data)
-  {
-      return <div>Loading ...</div>
-  }
+ 
+  useEffect(() => {
+    getStudents()
+  }, [])
 
   const addStudent = async (name,surname,major, GPA) =>{
     let students = await axios.post(URL , {name,surname,major, GPA})
-    mutate(URL)
+    setStudents(students.data)
   }
 
   const getStudents = async () => {
     let student = await axios.get(URL)
-    mutate(URL)
+    setStudents(student.data)
     
   }
 
-  const printStudents = (students) =>{
-    if( students && students.length)
-    return (students.map((item, index) => 
+  const printStudents = () =>{
+    if (students.list && students.list.length)
+				return (students.list.map((student, index) =>
           <li key = {index}>
             {index + 1 }:
-            {(item) ? item.name : "-"}:
-            {(item) ? item.surname : "-"}:
-            {(item) ? item.major : "-"}:
-            {(item) ? item.GPA : 0}
-            <button onClick={() => getStudent(item.id)}>Get</button>
-            <button onClick={() => updateStudent(item.id)}>Update</button>
-            <button onClick={() => deleteStudent(item.id)}>Delete</button>
+            {(student) ? student.name : "-"}:
+            {(student) ? student.surname : "-"}:
+            {(student) ? student.major : "-"}:
+            {(student) ? student.GPA : 0}
+            <button onClick={() => updateStudent(student.id)}>Update</button>
+            <button onClick={() => deleteStudent(student.id)}>Delete</button>
           </li>))
     else
       return (<li>No Student</li>)
@@ -57,30 +53,41 @@ const ChangeStudents = ({ token }) => {
 
   const deleteStudent = async (id) => {
     let students = await axios.delete(`${URL}/${id}`)
-    mutate(URL)
+    setStudents(students.data)
   }
 
   const updateStudent = async (id) => {
     let students = await axios.put(`${URL}/${id}`,{name,surname,major,GPA})
-    mutate(URL)
+    setStudents(students.data)
   }
 
-  const getStudent = async (id) => {
-    const student = await axios.get(`${URL}/${id}`)
-    setStudent({ name: student.data.name , surname: student.data.surname, major: student.data.major, GPA: student.data.GPA })
-  }
+  
 
   return (
-    <div> Students
-      <ul>{printStudents(data.list)}</ul>
-      selected student: {student.name} {student.surname} {student.major} {student.GPA}
-      <h2>Add student</h2>
-          Name : <input type="text" onChange={(e)=>setName(e.target.value)} /> <br/>
-          Surname : <input type="text" onChange={(e)=>setSurname(e.target.value)} /> <br/>
-          Major : <input type="text" onChange={(e)=>setMajor(e.target.value)} /> <br/>
-          GPA : <input type="number" onChange={(e)=>setGPA(e.target.value)} /> <br/>
-          <button onClick={ () => addStudent(name,surname,major,GPA)}>Add New Student</button>
-
-    </div>
+    <Layout>
+            <Head>
+                <title>Students</title>
+            </Head>
+            <div >
+                <Navbar />
+                {JSON.stringify(students.students)}
+                <ul >
+                    {printStudents()}
+                </ul>
+                <h1>Add student</h1>
+                <div>
+                    Name : <input type="text" onChange={(e) => setName(e.target.value)}  />
+                    Surname : <input type="text" onChange={(e) => setSurname(e.target.value)} /> 
+                    Major : <input type="text" onChange={(e) => setMajor(e.target.value)} /> 
+                    GPA : <input type="number" onChange={(e) => setGPA(e.target.value)} /> 
+                    <button onClick={() => addStudent(name, surname, major, GPA)} >Add New Student</button>
+                </div>
+            </div>
+        </Layout>
   )
+}
+
+export default StdAuth(ChangeStudent)
+export function getServerSideProps({ req, res }) {
+    return { props: { token: req.cookies.token || "" } };
 }

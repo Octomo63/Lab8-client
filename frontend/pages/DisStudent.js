@@ -23,35 +23,35 @@ const DisStudent = ({ token }) => {
 
 	const getStudents = async () => {
         let student = await axios.get(URL)
-            setStudents(student.data)
+        setStudents(student.data)
 	}
 	const printStudents = () => {
 	    console.log('Students:', students)
-	    if (students.list && students.list.length)
-	        return (students.list.map((student, index) =>
-            (<li key={index} className={styles.listItem}>
-	           Name : {(student) ? student.name : '-'} <br></br>
-	           Surname : {(student) ? student.surname : '-'}  <br></br>
-	           Major : {(student) ? student.major : '-'}  <br></br>
-               GPA : {(student) ? student.GPA : '-'}  <br></br> 
-            </li>)
-	        ))
-	    else {
-	        return (<h2>No Students To Display</h2>)
-        }
+			if (students.list && students.list.length)
+				return (students.list.map((student, index) =>
+				(<li key={index} className={styles.listItem}>
+				Name : {(student) ? student.name : '-'} <br></br>
+				Surname : {(student) ? student.surname : '-'}  <br></br>
+				Major : {(student) ? student.major : '-'}  <br></br>
+				GPA : {(student) ? student.GPA : '-'}  <br></br> 
+				</li>)
+				))
+			else {
+				return (<h2>No Students To Display</h2>)
+			}
     }
 	return (
 	    <Layout>
-	        <Head>
+            <Head>
                 <title>Students</title>
-	        </Head>
-	        <div className={styles.container}>
-	            <Navbar />
+            </Head>
+            <div>
+                <Navbar/>
                 {JSON.stringify(students.students)}
-	            <ul className={styles.list}>
-	                {printStudents()}
-	            </ul>
-	            
+                <ul>
+                    {printStudents()}
+                </ul>
+                
             </div>
         </Layout>
 	)
